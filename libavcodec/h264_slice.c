@@ -2628,10 +2628,11 @@ static int decode_slice(struct AVCodecContext *avctx, void *arg)
                     ff_h264_hl_decode_mb(h, sl);
                 sl->mb_y--;
             }
-
+decode_err = 0;
             if (ret < 0) {
                 av_log(h->avctx, AV_LOG_ERROR,
                        "error while decoding MB %d %d\n", sl->mb_x, sl->mb_y);
+                decode_err = 1;
                 er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y, sl->mb_x,
                              sl->mb_y, ER_MB_ERROR);
                 return ret;

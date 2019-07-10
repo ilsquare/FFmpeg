@@ -120,7 +120,7 @@ int ff_h264_check_intra4x4_pred_mode(int8_t *pred_mode_cache, void *logctx,
         0, -1, TOP_DC_PRED, 0, -1, -1, -1, 0, -1, DC_128_PRED
     };
     int i;
-
+frame_err = 0;
     if (!(top_samples_available & 0x8000)) {
         for (i = 0; i < 4; i++) {
             int status = top[pred_mode_cache[scan8[0] + i]];
@@ -128,6 +128,9 @@ int ff_h264_check_intra4x4_pred_mode(int8_t *pred_mode_cache, void *logctx,
                 av_log(logctx, AV_LOG_ERROR,
                        "top block unavailable for requested intra mode %d\n",
                        status);
+                        //the flag of error frame
+        frame_err = 1;
+
                 return AVERROR_INVALIDDATA;
             } else if (status) {
                 pred_mode_cache[scan8[0] + i] = status;
@@ -135,6 +138,7 @@ int ff_h264_check_intra4x4_pred_mode(int8_t *pred_mode_cache, void *logctx,
         }
     }
 
+frame_err = 0;
     if ((left_samples_available & 0x8888) != 0x8888) {
         static const int mask[4] = { 0x8000, 0x2000, 0x80, 0x20 };
         for (i = 0; i < 4; i++)
@@ -144,6 +148,9 @@ int ff_h264_check_intra4x4_pred_mode(int8_t *pred_mode_cache, void *logctx,
                     av_log(logctx, AV_LOG_ERROR,
                            "left block unavailable for requested intra4x4 mode %d\n",
                            status);
+                            //the flag of error frame
+        frame_err = 1;
+
                     return AVERROR_INVALIDDATA;
                 } else if (status) {
                     pred_mode_cache[scan8[0] + 8 * i] = status;
@@ -168,6 +175,9 @@ int ff_h264_check_intra_pred_mode(void *logctx, int top_samples_available,
     if (mode > 3U) {
         av_log(logctx, AV_LOG_ERROR,
                "out of range intra chroma pred mode\n");
+                //the flag of error frame
+        frame_err = 1;
+
         return AVERROR_INVALIDDATA;
     }
 

@@ -470,7 +470,11 @@ static int decode_residual(const H264Context *h, H264SliceContext *sl,
 
     if(total_coeff==0)
         return 0;
+      frame_err = 0;
     if(total_coeff > (unsigned)max_coeff) {
+              //the flag of error frame
+        frame_err = 1;
+
         av_log(h->avctx, AV_LOG_ERROR, "corrupted macroblock %d %d (total_coeff=%d)\n", sl->mb_x, sl->mb_y, total_coeff);
         return -1;
     }
@@ -510,8 +514,12 @@ static int decode_residual(const H264Context *h, H264SliceContext *sl,
                     level_code= prefix + get_bits(gb, 4); //part
             }else{
                 level_code= 30;
+                frame_err = 0;
                 if(prefix>=16){
                     if(prefix > 25+3){
+                              //the flag of error frame
+        frame_err = 1;
+
                         av_log(h->avctx, AV_LOG_ERROR, "Invalid level prefix\n");
                         return -1;
                     }
@@ -619,8 +627,11 @@ static int decode_residual(const H264Context *h, H264SliceContext *sl,
     } else {
         STORE_BLOCK(int16_t)
     }
-
+frame_err = 0;
     if(zeros_left<0){
+              //the flag of error frame
+        frame_err = 1;
+
         av_log(h->avctx, AV_LOG_ERROR, "negative number of zero coeffs at %d %d\n", sl->mb_x, sl->mb_y);
         return -1;
     }
@@ -755,7 +766,11 @@ int ff_h264_decode_mb_cavlc(const H264Context *h, H264SliceContext *sl)
         if (sl->slice_type == AV_PICTURE_TYPE_SI && mb_type)
             mb_type--;
 decode_intra_mb:
+frame_err = 0;
         if(mb_type > 25){
+                  //the flag of error frame
+        frame_err = 1;
+
             av_log(h->avctx, AV_LOG_ERROR, "mb_type %d in %c slice too large at %d %d\n", mb_type, av_get_picture_type_char(sl->slice_type), sl->mb_x, sl->mb_y);
             return -1;
         }

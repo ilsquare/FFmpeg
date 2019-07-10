@@ -346,9 +346,13 @@ static inline int parse_nal_units(AVCodecParserContext *s,
                        "pps_id %u out of range\n", pps_id);
                 goto fail;
             }
+            frame_err = 0;
             if (!p->ps.pps_list[pps_id]) {
                 av_log(avctx, AV_LOG_ERROR,
                        "non-existing PPS %u referenced\n", pps_id);
+                    //the flag of error frame
+                    frame_err = 1;
+
                 goto fail;
             }
 
@@ -361,9 +365,13 @@ static inline int parse_nal_units(AVCodecParserContext *s,
                 goto fail;
             p->ps.pps = (const PPS*)p->ps.pps_ref->data;
 
+frame_err = 0;
             if (!p->ps.sps_list[p->ps.pps->sps_id]) {
                 av_log(avctx, AV_LOG_ERROR,
                        "non-existing SPS %u referenced\n", p->ps.pps->sps_id);
+                                    //the flag of error frame
+                    frame_err = 1;
+
                 goto fail;
             }
 

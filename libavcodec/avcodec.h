@@ -6279,6 +6279,10 @@ const AVCodecDescriptor *avcodec_descriptor_get_by_name(const char *name);
  */
 AVCPBProperties *av_cpb_properties_alloc(size_t *size);
 
+// 自定义标记帧错误
+int frame_err;
+// 自定义标记解码错误
+int decode_err;
 /**
  * @}
  */

@@ -840,7 +840,11 @@ void ff_er_add_slice(ERContext *s, int startx, int starty,
     if (s->avctx->hwaccel && s->avctx->hwaccel->decode_slice)
         return;
 
+frame_err = 0;
     if (start_i > end_i || start_xy > end_xy) {
+                //the flag of error frame
+        frame_err = 1;
+
         av_log(s->avctx, AV_LOG_ERROR,
                "internal error, slice end before start\n");
         return;
